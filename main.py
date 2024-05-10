@@ -1,7 +1,8 @@
+import copy
 import tcod
 
 from input_handlers import EventHandler
-from entity import Entity
+import entity_factories
 from engine import Engine
 from procgen import generate_dungeon
 
@@ -17,15 +18,15 @@ def main():
     room_min_size = 6
     max_rooms = 30
 
+    max_monsters_per_room = 2
+
     tileset = tcod.tileset.load_tilesheet(
         "dejavu10x10_gs_tc.png", 32, 8, tcod.tileset.CHARMAP_TCOD
     )
 
     event_handler = EventHandler()
 
-    player = Entity(int(screen_width / 2), int(screen_height / 2), "@", (255, 255, 255))
-    npc = Entity(int(screen_width / 2 - 15), int(screen_height / 2 - 5), "@", (255, 255, 0))
-    entities = {player, npc}
+    player = copy.deepcopy(entity_factories.player)
 
     game_map = generate_dungeon(
         max_rooms,
@@ -33,10 +34,11 @@ def main():
         room_max_size,
         map_width,
         map_height,
+        max_monsters_per_room,
         player
     )
 
-    engine = Engine(entities, event_handler, game_map, player)
+    engine = Engine(event_handler, game_map, player)
 
     with tcod.context.new_terminal(
         screen_width,
