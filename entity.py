@@ -1,12 +1,12 @@
 from __future__ import annotations
 import copy
 
-from typing import Tuple, TypeVar, Optional, TYPE_CHECKING
+from typing import Tuple, Type, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from components.ai import BaseAI
+    from components.fighter import Fighter
     from game_map import GameMap
-
-T = TypeVar("T", bound="Entity")
 
 
 class Entity:
@@ -20,7 +20,7 @@ class Entity:
             char: str = "?",
             color: Tuple[int, int, int] = (255, 255, 255),
             name: str = "<Unnamed>",
-            blocks_movement: bool = False,  # Describes if the entity can move
+            blocks_movement: bool = False,  # Defines if the entity blocks movement
     ):
         self.x = x
         self.y = y
@@ -32,7 +32,7 @@ class Entity:
             self.game_map = game_map
             game_map.entities.add(self)
 
-    def spawn(self: T, game_map: GameMap, x: int, y: int):
+    def spawn(self, game_map: GameMap, x: int, y: int):
         """Spawning entities"""
         clone = copy.deepcopy(self)
         clone.x = x
@@ -56,3 +56,35 @@ class Entity:
         """Moving the entity"""
         self.x += dx
         self.y += dy
+
+
+class Actor(Entity):
+    def __init__(
+            self,
+            *,
+            x: int = 0,
+            y: int = 0,
+            char: str = "?",
+            color: Tuple[int, int, int] = (255, 255, 255),
+            name: str = "<Unnamed>",
+            ai_cls: Type[BaseAI],
+            fighter: Fighter
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=True
+        )
+
+        self.ai = ai_cls(self)
+
+        self.fighter = fighter
+        self.fighter.entity = self
+
+    @property
+    def is_alive(self):
+        """Returns True as long as this actor can perform actions"""
+        return bool(self.ai)

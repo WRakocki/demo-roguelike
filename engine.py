@@ -22,8 +22,9 @@ class Engine:
 
     def handle_enemy_turns(self):
         """Handles enemy turns (placeholder for now)"""
-        for entity in self.game_map.entities - {self.player}:
-            print(f'The {entity.name} is making a move!')
+        for entity in set(self.game_map.actors) - {self.player}:
+            if entity.ai:
+                entity.ai.perform()
 
     def update_fov(self):
         """Updates fov with the help of TCOD"""

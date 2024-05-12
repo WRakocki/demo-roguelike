@@ -2,6 +2,8 @@ from typing import Tuple
 
 import numpy as np
 
+"""Storing tile types"""
+
 graphic_dt = np.dtype(
     [
         ("ch", np.int32),
@@ -45,3 +47,4 @@ wall = new_tile(
     dark=(ord(" "), (255, 255, 255), (0, 0, 100)),
     light=(ord(" "), (255, 255, 255), (130, 110, 50))
 )
+

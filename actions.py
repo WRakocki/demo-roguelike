@@ -32,6 +32,12 @@ class EscapeAction(Action):
         raise SystemExit()
 
 
+class WaitAction(Action):
+    """Simply: waits"""
+    def perform(self):
+        pass
+
+
 class ActionWithDirection(Action):
     def __init__(self, entity: Entity, dx: int, dy: int):
         super().__init__(entity)
@@ -62,7 +68,7 @@ class MeleeAction(ActionWithDirection):
         if not target:
             return
 
-        print(f'You kick the {target.name}!')
+        print(f'{target.name} is attacked!')
 
 
 class MovementAction(ActionWithDirection):
@@ -75,8 +81,8 @@ class MovementAction(ActionWithDirection):
         if not self.engine.game_map.tiles["walkable"][dest_x, dest_y]:
             return  # Destination is blocked by a tile.
         if self.engine.game_map.get_blocking_entity_at_location(dest_x, dest_y):
-            return # Destination is blocked by an entity
-
+            return  # Destination is blocked by an entity
+        # print(f"{self.entity.name} makes the move")
         self.entity.move(self.dx, self.dy)
 
 
@@ -87,3 +93,4 @@ class BumpAction(ActionWithDirection):
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
+

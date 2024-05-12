@@ -3,6 +3,7 @@ from typing import Iterable, TYPE_CHECKING
 import numpy as np
 from tcod.console import Console
 import tile_types
+from entity import Actor
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -21,11 +22,24 @@ class GameMap:
         self.visible = np.full((width, height), fill_value=False, order="F")
         self.explored = np.full((width, height), fill_value=False, order="F")
 
+    @property
+    def actors(self):
+        """Returns living actors"""
+        yield from (entity for entity in self.entities if isinstance(entity, Actor) and entity.is_alive)
+
     def get_blocking_entity_at_location(self, location_x: int, location_y: int):
         """Returns entity blocking move at the players direction"""
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
                 return entity
+
+        return None
+
+    def get_actor_at_location(self, x: int, y: int):
+        """Returns actor at the location"""
+        for actor in self.actors:
+            if actor.x == x and actor.y == y:
+                return Actor
 
         return None
 
