@@ -1,5 +1,7 @@
 from entity import Entity
 
+"""Stores the properties of the entities"""
+
 player = Entity(char="@", color=(255, 255, 255), name="Player", blocks_movement=True)
 
 orc = Entity(char="o", color=(63, 127, 63), name="Orc", blocks_movement=True)

@@ -8,7 +8,9 @@ if TYPE_CHECKING:
     from engine import Engine
     from entity import Entity
 
+
 class GameMap:
+    """Object representing and generating GameMaps"""
     def __init__(
             self, engine: Engine, width: int, height: int, entities: Iterable[Entity] = ()
     ):
@@ -20,6 +22,7 @@ class GameMap:
         self.explored = np.full((width, height), fill_value=False, order="F")
 
     def get_blocking_entity_at_location(self, location_x: int, location_y: int):
+        """Returns entity blocking move at the players direction"""
         for entity in self.entities:
             if entity.blocks_movement and entity.x == location_x and entity.y == location_y:
                 return entity
@@ -27,14 +30,18 @@ class GameMap:
         return None
 
     def in_bounds(self, x: int, y: int):
+        """Checks if the position is in the bounds of GameMap"""
         return 0 <= x < self.width and 0 <= y < self.height
 
     def render(self, console: Console):
+        """Renders GameMap to the Console"""
+
         console.rgb[0:self.width, 0:self.height] = np.select(
             condlist=[self.visible, self.explored],
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD,
         )
         for entity in self.entities:
+            """Renders entities if they are visible"""
             if self.visible[entity.x, entity.y]:
                 console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)

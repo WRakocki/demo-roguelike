@@ -10,11 +10,12 @@ if TYPE_CHECKING:
 
 
 class EventHandler(tcod.event.EventDispatch[Action]):
-
+    """Handles events in the game"""
     def __init__(self, engine: Engine):
         self.engine = engine
 
     def handle_events(self):
+        """Dispatches events"""
         for event in tcod.event.wait():
             action = self.dispatch(event)
 
@@ -26,15 +27,18 @@ class EventHandler(tcod.event.EventDispatch[Action]):
             self.engine.update_fov()
 
     def ev_quit(self, event: tcod.event.Quit):
+        """Event of exiting the game"""
         raise SystemExit()
 
     def ev_keydown(self, event: tcod.event.KeyDown):
+        """KeyDown events"""
         action: Optional[Action] = None
 
         key = event.sym
 
         player = self.engine.player
 
+        # Moving player
         if key == tcod.event.KeySym.UP:
             action = BumpAction(player, dx=0, dy=-1)
         elif key == tcod.event.KeySym.DOWN:

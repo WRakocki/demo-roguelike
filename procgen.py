@@ -13,6 +13,7 @@ if TYPE_CHECKING:
 
 
 class RectangularRoom:
+    """Object representing RectangularRoom"""
     def __init__(self, x: int, y: int, width: int, height: int):
         self.x1 = x
         self.y1 = y
@@ -21,6 +22,7 @@ class RectangularRoom:
 
     @property
     def center(self):
+        """Returns center of the room"""
         center_x = int((self.x1 + self.x2) / 2)
         center_y = int((self.y1 + self.y2) / 2)
 
@@ -28,7 +30,8 @@ class RectangularRoom:
 
     @property
     def inner(self):
-        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)
+        """Returns inner area of the room"""
+        return slice(self.x1 + 1, self.x2), slice(self.y1 + 1, self.y2)  # adds 1 to not include walls
 
     def intersects(self, other):
         """Return True if this room overlaps with another RectangularRoom."""
@@ -43,6 +46,8 @@ class RectangularRoom:
 def place_entities(
         room: RectangularRoom, dungeon: GameMap, maximum_monsters: int
 ):
+    """Placing entities in random positions in the room"""
+
     number_of_monsters = random.randint(0, maximum_monsters)
 
     for i in range(number_of_monsters):
@@ -51,9 +56,9 @@ def place_entities(
 
         if not any(entity.x == x and entity.y == y for entity in dungeon.entities):
             if random.random() < 0.8:
-                entity_factories.orc.spawn(dungeon, x, y)
+                entity_factories.orc.spawn(dungeon, x, y)   # 0.2 chance for the orc
             else:
-                entity_factories.troll.spawn(dungeon, x, y)
+                entity_factories.troll.spawn(dungeon, x, y)    # 0.8 chance for the orc
 
 
 def tunnel_between(
@@ -85,6 +90,8 @@ def generate_dungeon(
     max_monsters_per_room: int,
     engine: Engine,
 ):
+    """Returns generated dungeon with rooms and tunnels"""
+
     player = engine.player
     dungeon = GameMap(engine, map_width, map_height, entities=[player])
     rooms = []
@@ -100,15 +107,15 @@ def generate_dungeon(
         if any(new_room.intersects(other_room) for other_room in rooms):
             continue
 
-        dungeon.tiles[new_room.inner] = tile_types.floor
+        dungeon.tiles[new_room.inner] = tile_types.floor  # Populating inner area of the room with floor tiles
 
         if len(rooms) == 0:
-            player.place(*new_room.center, dungeon)
+            player.place(*new_room.center, dungeon)  # Places the player in the first room
         else:
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
+                dungeon.tiles[x, y] = tile_types.floor  # Populating inner area of the tunnel with floor tiles
 
-        place_entities(new_room, dungeon, max_monsters_per_room)
+        place_entities(new_room, dungeon, max_monsters_per_room)  # Populating rooms with entities
 
         rooms.append(new_room)
 

@@ -39,6 +39,7 @@ def main():
 
     engine.update_fov()
 
+    # Creating the screen
     with tcod.context.new_terminal(
         screen_width,
         screen_height,
