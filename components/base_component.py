@@ -13,4 +13,4 @@ class BaseComponent:
 
     @property
     def engine(self):
-        return self.entity.gamemap.engine
+        return self.entity.game_map.engine

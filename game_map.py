@@ -39,7 +39,7 @@ class GameMap:
         """Returns actor at the location"""
         for actor in self.actors:
             if actor.x == x and actor.y == y:
-                return Actor
+                return actor
 
         return None
 
@@ -55,7 +55,9 @@ class GameMap:
             choicelist=[self.tiles["light"], self.tiles["dark"]],
             default=tile_types.SHROUD,
         )
-        for entity in self.entities:
-            """Renders entities if they are visible"""
+        """Renders entities if they are visible"""
+        entities_sorted_for_rendering = sorted(self.entities, key=lambda x: x.render_order.value)
+        for entity in entities_sorted_for_rendering:
+
             if self.visible[entity.x, entity.y]:
                 console.print(x=entity.x, y=entity.y, string=entity.char, fg=entity.color)

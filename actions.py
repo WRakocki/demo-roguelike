@@ -2,13 +2,15 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import color
+
 if TYPE_CHECKING:
-    from entity import Entity
+    from entity import Entity, Actor
 
 
 class Action:
     """A general class of the Action for modeling other Actions in the game"""
-    def __init__(self, entity: Entity):
+    def __init__(self, entity: Actor):
         super().__init__()
         self.entity = entity
 
@@ -39,7 +41,7 @@ class WaitAction(Action):
 
 
 class ActionWithDirection(Action):
-    def __init__(self, entity: Entity, dx: int, dy: int):
+    def __init__(self, entity: Actor, dx: int, dy: int):
         super().__init__(entity)
 
         self.dx = dx
@@ -55,6 +57,11 @@ class ActionWithDirection(Action):
         """Returns entity blocking at the following destination"""
         return self.engine.game_map.get_blocking_entity_at_location(*self.dest_xy)
 
+    @property
+    def target_actor(self):
+        """Returns the actor at the action destination"""
+        return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+
     def perform(self):
         """Must be overriden by the subclasses"""
         raise NotImplementedError()
@@ -63,12 +70,28 @@ class ActionWithDirection(Action):
 class MeleeAction(ActionWithDirection):
     """Action of attacking the enemies"""
     def perform(self):
-        target = self.blocking_entity
+        target = self.target_actor
 
         if not target:
             return
 
-        print(f'{target.name} is attacked!')
+        damage = self.entity.fighter.power - target.fighter.defense
+
+        attack_desc = f"{self.entity.name.capitalize()} attacks {target.name}"
+        if self.entity is self.engine.player:
+            attack_color = color.player_atk
+        else:
+            attack_color = color.enemy_atk
+
+        if damage > 0:
+            self.engine.message_log.add_message(
+                f"{attack_desc} for {damage} points!", attack_color
+            )
+            target.fighter.hp -= damage
+        else:
+            self.engine.message_log.add_message(
+                f"{attack_desc} but does no damage.", attack_color
+            )
 
 
 class MovementAction(ActionWithDirection):
@@ -89,7 +112,7 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     """Checks if the entity is blocking direction, if true attacks the enemy, otherwise moves the entity"""
     def perform(self):
-        if self.blocking_entity:
+        if self.target_actor:
             return MeleeAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()

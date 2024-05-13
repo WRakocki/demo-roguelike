@@ -4,10 +4,12 @@ from typing import TYPE_CHECKING
 from tcod.context import Context
 from tcod.console import Console
 from tcod.map import compute_fov
-from input_handlers import EventHandler
+from input_handlers import MainGameEventHandler
+from message_log import MessageLog
+from render_functions import render_bar
 
 if TYPE_CHECKING:
-    from entity import Entity
+    from entity import Actor
     from game_map import GameMap
 
 
@@ -16,8 +18,9 @@ class Engine:
 
     game_map: GameMap = None
 
-    def __init__(self, player: Entity):
-        self.event_handler = EventHandler(self)
+    def __init__(self, player: Actor):
+        self.event_handler = MainGameEventHandler(self)
+        self.message_log = MessageLog()
         self.player = player
 
     def handle_enemy_turns(self):
@@ -40,6 +43,14 @@ class Engine:
         """Renders a game to the screen"""
         self.game_map.render(console)
 
+        self.message_log.render(console=console, x=21, y=45, width=40, height=5)
+        # Renders the health bar
+        render_bar(
+            console=console,
+            current_value=self.player.fighter.hp,
+            maximum_value=self.player.fighter.max_hp,
+            total_width=20,
+        )
         context.present(console)
 
         console.clear()

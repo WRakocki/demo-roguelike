@@ -8,6 +8,8 @@ if TYPE_CHECKING:
     from components.fighter import Fighter
     from game_map import GameMap
 
+from render_order import RenderOrder
+
 
 class Entity:
     """Object representing various entities like player, enemies, items etc."""
@@ -21,6 +23,7 @@ class Entity:
             color: Tuple[int, int, int] = (255, 255, 255),
             name: str = "<Unnamed>",
             blocks_movement: bool = False,  # Defines if the entity blocks movement
+            render_order: RenderOrder = RenderOrder.ACTOR
     ):
         self.x = x
         self.y = y
@@ -28,6 +31,7 @@ class Entity:
         self.color = color
         self.name = name
         self.blocks_movement = blocks_movement
+        self.render_order = render_order
         if game_map:
             self.game_map = game_map
             game_map.entities.add(self)
@@ -76,7 +80,8 @@ class Actor(Entity):
             char=char,
             color=color,
             name=name,
-            blocks_movement=True
+            blocks_movement=True,
+            render_order=RenderOrder.ACTOR,
         )
 
         self.ai = ai_cls(self)
